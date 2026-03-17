@@ -1,37 +1,37 @@
-Universal Soul Logic (USL) Framework
-「魂（Identity）」と「世界（Context）」を分離し、NFTに真の人生を吹き込む。
-Universal Soul Logic は、NFTキャラクターに対して、地理的条件や社会的属性に基づいた動的なステータス生成と**行動経済（Action Point）**のロジックを付与するための汎用フレームワークです。
+Universal Soul Logic (USL)
+The Three-Layer Architecture for Persistent NFT Characters.
+Universal Soul Logic は、オンチェーンの不変性とオフチェーンの柔軟性を融合させた、次世代NFTキャラクターのためのエンジンです。キャラクターの「魂（DNA）」をチェーンに刻み、その「解釈（Logic）」を外部化することで、シーズンごとのメタデータ更新、多世界間でのキャラクター利用、そして家系の継承システムを実現します。
 
-💡 なぜこれが必要なのか？
-既存のNFTゲームの多くは、能力値や外見がひとつのゲームに固定されています。USLフレームワークは、キャラクターの「履歴（魂）」と、それをどう解釈するかという「ルール（ロジック）」を分離します。
-これにより、ひとつのNFTが：
- * 戦国時代オンラインでは「伊豆の足軽」として振る舞い、
- * 魔法学校シミュレーターでは「2年生の魔術師」として解釈される、
-   という**多世界解釈（Multiverse Interpretation）**を実現します。
+🌌 コンセプト：三層構造 (The Trinity Model)
+本プロジェクトでは、キャラクターを以下の3つのレイヤーで定義します。
+ * Soul (DNA) - オンチェーンの不変性 NFTに記録された Seed と Origin。これはキャラクターの「魂」であり、決して変わりません。
+ * Law (Logic) - オフチェーンの解釈 logic.json によって定義されるゲームルール。時代やシーズンに合わせて、同じ「魂」を「武士」にも「魔術師」にも解釈できます。
+ * Body (Assets) - ビジュアルの受肉 visual-mapping.json を介して紐付けられる画像や3Dモデル。グラフィックのアップデートや、デバイスに合わせた最適化が可能です。
 
-🚀 コア・コンセプト
- * Decoupling (疎結合): 土地データ（hex-shogun-map等）やアセットデータと独立してロジックを管理。
- * Dynamic AP Control: 年齢、ジェンダー、職業、土地属性を掛け合わせ、個体ごとの「行動コスト」をミリ単位で制御。
- * Generational Inheritance: 一世代の終焉をデータとして記録し、次代の初期ステータスに引き継ぐ「魂の連鎖」をサポート。
- * Gender & Identity Fluidity: 固定概念に縛られない多様なジェンダー定義と、それに応じた独自のAPボーナス設定。
+🛠 主な機能 (Core Features)
+ * 📍 地理的生成 (Geo-based Spawning) 伊豆マップ（izu.json）の地形や標高に基づき、キャラクターの初期ステータスや職業確率が動的に変化します。
+ * ⏳ 成長と加齢のシミュレーション ミント時からの経過時間に応じて、能力値（AP効率）や見た目が自動的に変化するロジックを搭載。
+ * ❄️ シーズン凍結 & 継承システム シーズン終了時にキャラを「武士カード」として凍結。その実績（Legacy Points）を次代のキャラへ継承する「転生」の仕組みをサポート。
+ * 🌐 多世界解釈 (Cross-World Logic) 同じNFTを保持したまま、参照する logic.json を切り替えるだけで、異なるゲームタイトルのキャラクターとして即座に利用可能。
 
-🛠 構成ファイル
- * profiles/sengoku-logic.json: 13歳からの元服、昇進、関白への道を定義した戦国特化ロジック。
- * schemas/life-logic.schema.json: あらゆる世界観に対応可能な属性定義スキーマ。
- * lib/soul-engine.js: 地理データとロジックを合成する軽量演算エンジン。
+📂 リポジトリ構造 (Structure)
+/Universal-Soul-Logic
+├── /lib               # Soul Engine 本体 (JS)
+├── /data              # 地理データ (izu.json) と 生成ロジック (sengoku-logic.json)
+├── /assets            # アセットマッピング定義 (visual-mapping.json)
+├── /docs              # 統合ガイド (integration.md)
+└── /demo              # ブラウザで動くシミュレーター (index.html)
 
-## NFT Integration Flow
+🚀 クイックスタート (Getting Started)
+1. デモを動かす
+GitHub Pages で現在のロジックとアセットの連動を確認できます。
+Demo Link
+(※伊豆のマップをクリックして、魂をミントしてください)
+2. プロジェクトへの統合
+既存のNFTプロジェクトに導入する方法については、詳細な Integration Guide を参照してください。
 
-このフレームワークは、オンチェーンの不変データとオフチェーンの動的ロジックを統合します。
+📜 ライセンス (License)
+This project is licensed under the MIT License.
 
-1. **On-chain Data (The Soul)**: 
-   NFT holds `seed`, `birth_place`, and `legacy_points`.
-2. **Logic Layer (The Law)**: 
-   `sengoku-logic.json` interprets the on-chain data into gameplay stats (AP, Occupation).
-3. **Visual Layer (The Body)**: 
-   `visual-mapping.json` assigns the correct avatar based on the interpreted stats.
-
-これにより、ゲームバランスの調整（APの変更）や外見のアップデートを、ガス代をかけずに行うことが可能です。
-
-## For Developers
-NFTとの具体的な連携方法や、スマートコントラクトでのDNA設計については、[Integration Guide](./docs/integration.md) を参照してください。
+🤝 コントリビュート
+「多世界解釈」を広げるための新しい logic.json（ファンタジー、サイバーパンク等）や、新しい地理データのプルリクエストを歓迎します。
