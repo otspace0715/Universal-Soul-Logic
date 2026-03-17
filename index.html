@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+        <title>Universal Soul Engine - Demo</title>
+            <style>
+                    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f4f9; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+                            .container { display: flex; gap: 20px; max-width: 1200px; width: 100%; }
+                                    
+                                            /* 左側：マップエリア */
+                                                    #map-container { flex: 1; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+                                                            .map-grid { display: grid; grid-template-columns: repeat(8, 40px); gap: 5px; justify-content: center; background: #e0e0e0; padding: 10px; border-radius: 8px; }
+                                                                    .hex { width: 40px; height: 40px; background: #a8d5ba; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #555; transition: transform 0.2s; }
+                                                                            .hex:hover { transform: scale(1.1); filter: brightness(1.1); border: 2px solid #333; }
+                                                                                    .hex.mountain { background: #8d6e63; color: #fff; }
+                                                                                            .hex.sea { background: #81d4fa; }
+
+                                                                                                    /* 右側：魂のステータス表示 */
+                                                                                                            #status-container { flex: 1; background: #2c3e50; color: #ecf0f1; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-height: 500px; }
+                                                                                                                    h2 { border-bottom: 2px solid #34495e; padding-bottom: 10px; margin-top: 0; }
+                                                                                                                            .soul-card { background: #34495e; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; border-left: 5px solid #e67e22; }
+                                                                                                                                    .badge { background: #e67e22; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; font-weight: bold; }
+                                                                                                                                            .ap-list { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-family: monospace; }
+                                                                                                                                                    .ap-item { background: #2c3e50; padding: 5px 10px; border-radius: 4px; font-size: 0.85em; }
+                                                                                                                                                            .info-text { color: #bdc3c7; font-size: 0.9em; margin-bottom: 20px; }
+                                                                                                                                                                </style>
+                                                                                                                                                                </head>
+                                                                                                                                                                <body>
+
+                                                                                                                                                                    <h1>Universal Soul Engine <small style="font-size: 0.5em; opacity: 0.7;">v2.0.0</small></h1>
+                                                                                                                                                                        <p class="info-text">伊豆マップのヘックスをクリックして、その土地から新しい「魂（NFT属性）」を誕生させてください。</p>
+
+                                                                                                                                                                            <div class="container">
+                                                                                                                                                                                    <div id="map-container">
+                                                                                                                                                                                                <h2>伊豆国マップ (Geo Data)</h2>
+                                                                                                                                                                                                            <div id="map" class="map-grid">
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                        <p style="font-size: 0.8em; color: #666; margin-top: 15px;">
+                                                                                                                                                                                                                                                        茶色: 山地 (武士/忍 出現率UP) | 緑: 平地 | 青: 沿岸/低地 (商人 出現率UP)
+                                                                                                                                                                                                                                                                    </p>
+                                                                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                                                                                    <div id="status-container">
+                                                                                                                                                                                                                                                                                    
