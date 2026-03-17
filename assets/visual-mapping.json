@@ -1,0 +1,28 @@
+{
+        "asset_metadata": {
+            "theme": "Sengoku-Online-Official-Sample",
+                "version": "1.0.0",
+                    "//base_url_comment": "GitHub Pagesで公開する場合、リポジトリのURLになります",
+                        "base_url": "./assets/resources/" 
+                          },
+
+                            "visual_assets": {
+                                "m_base_samurai_13": {
+                                      "label": "少年武士",
+                                            "2d_sprite": "sprites/m_samurai_13.png",
+                                                  "3d_model": "models/m_samurai_13.vrm",
+                                                        "ui_icon": "icons/m_samurai_01.jpg"
+                                                            },
+                                                                "f_base_samurai_13": {
+                                                                      "label": "少女武士",
+                                                                            "2d_sprite": "sprites/f_samurai_13.png",
+                                                                                  "3d_model": "models/f_samurai_13.vrm"
+                                                                                      },
+                                                                                          "m_base_farmer_13": {
+                                                                                                "label": "農民の少年",
+                                                                                                      "2d_sprite": "sprites/m_farmer_13.png"
+                                                                                                          }
+                                                                                                            }
+                                                                                                            }
+                                                                                                            
+}
