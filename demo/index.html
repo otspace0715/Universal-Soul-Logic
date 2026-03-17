@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Universal Soul Engine - Demo</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f4f9; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        .container { display: flex; gap: 20px; max-width: 1200px; width: 100%; }
+        
+        /* 左側：マップエリア */
+        #map-container { flex: 1; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .map-grid { display: grid; grid-template-columns: repeat(8, 40px); gap: 5px; justify-content: center; background: #e0e0e0; padding: 10px; border-radius: 8px; }
+        .hex { width: 40px; height: 40px; background: #a8d5ba; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #555; transition: transform 0.2s; }
+        .hex:hover { transform: scale(1.1); filter: brightness(1.1); border: 2px solid #333; }
+        .hex.mountain { background: #8d6e63; color: #fff; }
+        .hex.sea { background: #81d4fa; }
+
+        /* 右側：魂のステータス表示 */
+        #status-container { flex: 1; background: #2c3e50; color: #ecf0f1; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-height: 500px; }
+        h2 { border-bottom: 2px solid #34495e; padding-bottom: 10px; margin-top: 0; }
+        .soul-card { background: #34495e; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; border-left: 5px solid #e67e22; }
+        .badge { background: #e67e22; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; font-weight: bold; }
+        .ap-list { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-family: monospace; }
+        .ap-item { background: #2c3e50; padding: 5px 10px; border-radius: 4px; font-size: 0.85em; }
+        .info-text { color: #bdc3c7; font-size: 0.9em; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Universal Soul Engine <small style="font-size: 0.5em; opacity: 0.7;">v2.0.0</small></h1>
+    <p class="info-text">伊豆マップのヘックスをクリックして、その土地から新しい「魂（NFT属性）」を誕生させてください。</p>
+
+    <div class="container">
+        <div id="map-container">
+            <h2>伊豆国マップ (Geo Data)</h2>
+            <div id="map" class="map-grid">
+                </div>
+            <p style="font-size: 0.8em; color: #666; margin-top: 15px;">
+                茶色: 山地 (武士/忍 出現率UP) | 緑: 平地 | 青: 沿岸/低地 (商人 出現率UP)
+            </p>
+        </div>
+
+        <div id="status-container">
+            <h2>誕生した魂の刻印 (Identity)</h2>
+            <div id="soul-output">
+                <p style="opacity: 0.5;">マップをクリックして魂をミントしてください...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import SoulEngine from '../lib/soul-engine.js';
+
+        // サンプルの地理データ (本来は izu.json をフェッチ)
+        const sampleGeo = {
+            province: "伊豆",
+            cells: Array.from({length: 64}, (_, i) => ({
+                hex_id: `${Math.floor(i/8)+1}_${(i%8)+1}`,
+                attr: {
+                    elevation_m: Math.random() > 0.7 ? 500 : 50,
+                    terrain_type: Math.random() > 0.7 ? 1 : 0
+                }
+            }))
+        };
+
+        // サンプルのロジックデータ (本来は sengoku-logic.json をフェッチ)
+        // ここでは簡略化して定義
+        const sampleLogic = {
+            province: "伊豆",
+            generation_protocols: {
+                gender: { input_method: "random", options: [{id:"male", weight:50}, {id:"female", weight:50}] },
+                spawn_age: { available_formats: { values: [13] } }
+            },
+            spawn_probability: {
+                terrain_modifiers: {
+                    mountain: { condition: { terrain_type: 1 }, targets: ["samurai", "shinobi"], mul: 3.0 }
+                },
+                occupation_pool: [
+                    { id: "farmer", base_weight: 60 },
+                    { id: "samurai", base_weight: 20 },
+                    { id: "merchant", base_weight: 10 },
+                    { id: "shinobi", base_weight: 10 }
+                ]
+            },
+            trait_modifier_map: {
+                gender_traits: {
+                    male: { ap_mult: { military: 0.9 }, visual_key: "m" },
+                    female: { ap_mult: { diplomacy: 0.9 }, visual_key: "f" }
+                },
+                age_traits: { ap_max_formula: "", learning_rate_formula: "" }
+            },
+            occupation_ap_modifiers: {
+                samurai: { military: 0.7, battle: 0.8 },
+                farmer: { cultivate: 0.5, repair: 0.7 },
+                merchant: { trade: 0.6, transport: 0.7 },
+                shinobi: { reconnaissance: 0.4, stealth: 0.5 }
+            },
+            province_overrides: { "伊豆": { samurai_spawn_bonus: 1.5 } }
+        };
+
+        const mapEl = document.getElementById('map');
+        const outputEl = document.getElementById('soul-output');
+
+        // マップの描画
+        sampleGeo.cells.forEach(cell => {
+            const div = document.createElement('div');
+            div.className = `hex ${cell.attr.terrain_type === 1 ? 'mountain' : (cell.attr.elevation_m < 60 ? 'sea' : '')}`;
+            div.innerText = cell.hex_id;
+            div.onclick = () => spawn(cell);
+            mapEl.appendChild(div);
+        });
+
+        // 魂の生成実行
+        function spawn(cell) {
+            const soul = SoulEngine.spawn(cell, sampleLogic);
+            renderSoul(soul);
+        }
+
+        // 結果のレンダリング
+        function renderSoul(soul) {
+            const apItems = Object.entries(soul.capabilities.ap_modifiers)
+                .map(([k, v]) => `<li class="ap-item">${k}: <b>${v}</b></li>`).join('');
+
+            outputEl.innerHTML = `
+                <div class="soul-card">
+                    <p><span class="badge">${soul.identity.occupation.toUpperCase()}</span> <b>年齢: ${soul.identity.age}歳</b></p>
+                    <p><b>性別:</b> ${soul.identity.gender === 'male' ? '男性' : '女性'}</p>
+                    <p><b>出身地 (Hex ID):</b> ${soul.spawn_location}</p>
+                    <hr style="border: 0; border-top: 1px solid #455a64;">
+                    <p style="font-size: 0.9em; color: #aaa;">行動AP補正 (低いほど得意):</p>
+                    <ul class="ap-list">${apItems}</ul>
+                    <p style="margin-top:15px;"><b>最大AP:</b> ${soul.capabilities.max_ap} | <b>学習効率:</b> ${soul.capabilities.learning_rate}</p>
+                    <p style="font-size: 0.7em; opacity: 0.5;">Visual Ref: ${soul.visual_ref}</p>
+                </div>
+                <p style="font-size: 0.8em; margin-top: 20px; color: #95a5a6;">※同じ土地でもクリックの度に異なる魂が生まれます（ランダム要素）。</p>
+            `;
+        }
+    </script>
+</body>
+</html>
